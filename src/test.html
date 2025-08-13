@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>IMA minimal outstream</title>
+
+  <!-- Minimal CSS so the ad is visible -->
+  <link rel="stylesheet" href="https://unpkg.com/video.js@8.23.4/dist/video-js.css">
+  <link rel="stylesheet" href="https://unpkg.com/videojs-contrib-ads@7.5.2/dist/videojs.ads.css">
+  <link rel="stylesheet" href="https://unpkg.com/videojs-ima@2.4.0/dist/videojs.ima.css">
+
+  <!-- IMA SDK (debug build so it prints helpful messages) -->
+  <script src="https://imasdk.googleapis.com/js/sdkloader/ima3_debug.js"></script>
+
+  <!-- Video.js + plugins -->
+  <script src="https://unpkg.com/video.js@8.23.4/dist/video.min.js"></script>
+  <script src="https://unpkg.com/videojs-contrib-ads@7.5.2/dist/videojs.ads.min.js"></script>
+  <script src="https://unpkg.com/videojs-ima@2.4.0/dist/videojs.ima.min.js"></script>
+
+  <script>
+    // Stub a valid US Privacy string for dev (silences that warning)
+    window.__uspapi = function (cmd, ver, cb) {
+      if (cmd === 'getUSPData') cb({ version: 1, uspString: '1---' }, true);
+    };
+  </script>
+</head>
+<body style="margin:24px;font-family:sans-serif">
+  <video id="v" class="video-js vjs-default-skin" playsinline
+         style="width:640px;height:360px;background:#000"></video>
+  <div style="margin-top:12px">
+    <button id="btn">Play Ad</button>
+  </div>
+
+  <script>
+    // Same sample tag, but remove companions to avoid GPT warning (not required)
+    const TAG =
+      'https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples' +
+      '&sz=640x480&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s' +
+      '&vpmute=1&description_url=' + encodeURIComponent(location.href);
+
+    const player = videojs('v', {
+      autoplay: false, muted: true, playsinline: true, controls: false,
+      width: 640, height: 360, sources: [] // outstream = no content
+    });
+
+    player.ima({
+      adTagUrl: TAG,
+      autoPlayAdBreaks: true,
+      contribAdsSettings: { playerMode: 'outstream', timeout: 8000 }
+    });
+
+    // Minimal “did it actually start?” hooks
+    player.one('ads-manager', (e) => {
+      const am = e?.adsManager;
+      const IMA = window.google && window.google.ima;
+      if (!am || !IMA) return;
+      am.addEventListener(IMA.AdEvent.Type.LOADED,    () => console.log('LOADED'));
+      am.addEventListener(IMA.AdEvent.Type.STARTED,   () => console.log('STARTED'));
+      am.addEventListener(IMA.AdEvent.Type.IMPRESSION,() => console.log('IMPRESSION'));
+      am.addEventListener(IMA.AdEvent.Type.ALL_ADS_COMPLETED, () => console.log('DONE'));
+      am.addEventListener(IMA.AdErrorEvent.Type.AD_ERROR, (ev) => {
+        const err = ev?.getError?.();
+        console.warn('AD_ERROR:', err?.getMessage?.(), 'VAST', err?.getVastErrorCode?.(), err);
+      });
+
+      // Auto-start on desktop (mobile still needs the button)
+      if (!('ontouchstart' in window)) {
+        try { player.ima.initializeAdDisplayContainer(); } catch {}
+        player.play().catch(()=>{});
+      }
+    });
+
+    // Mobile / manual start (this is the user gesture)
+    document.getElementById('btn').onclick = function () {
+      console.log('init AdDisplayContainer + play()');
+      try { player.ima.initializeAdDisplayContainer(); } catch {}
+      player.play().then(() => console.log('play() resolved'))
+                   .catch(e => console.warn('play() rejected', e));
+    };
+  </script>
+</body>
+</html>
