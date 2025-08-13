@@ -9,9 +9,10 @@ import "videojs-contrib-ads/dist/videojs.ads.css";
 import "videojs-ima/dist/videojs.ima.css";
 
 // Single VAST sample tag (outstream-friendly)
-const SAMPLE_TAG =
-  "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=";
+// const SAMPLE_TAG =
+//   "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=";
 
+const SAMPLE_TAG = "https://raw.githubusercontent.com/vb201/asdasd/refs/heads/main/scoredunks.xml";
 export default function AdOnly({ adTagUrl = SAMPLE_TAG }) {
   const el = useRef(null);
   const playerRef = useRef(null);
@@ -23,6 +24,38 @@ export default function AdOnly({ adTagUrl = SAMPLE_TAG }) {
     adsManagerLoaded: false, // IMA AdsManager exists
     adsReady: false,         // contrib-ads signaled "adsready"
   });
+
+  // If autoplay is blocked, we reveal a tiny overlay button to complete the gesture
+  const [needsGesture, setNeedsGesture] = useState(false);
+
+  // Helper: best-effort autoplay when ads are ready
+  const tryAutoStartAd = (p) => {
+    // 1) Try to init the AdDisplayContainer (works on desktop; mobile may ignore without a gesture)
+    try { p.ima.initializeAdDisplayContainer(); } catch {}
+
+    // 2) Start the ad break
+    p.ima.playAdBreak();
+
+    // 3) If we don't see an ad actually start soon, assume autoplay was blocked → show overlay
+    let started = false;
+    const onStart = () => { started = true; p.off("adstart", onStart); };
+    p.one("adstart", onStart);
+
+    window.setTimeout(() => {
+      if (!started) {
+        console.log("[auto] autoplay blocked → showing gesture overlay");
+        setNeedsGesture(true);
+      }
+    }, 1200);
+  };
+
+  // Manual start (used only by the fallback overlay)
+  const manualStart = () => {
+    const p = playerRef.current;
+    if (!p) return;
+    try { p.ima.initializeAdDisplayContainer(); } catch {}
+    p.ima.playAdBreak();
+  };
 
   useEffect(() => {
     if (inited.current) return;
@@ -57,7 +90,7 @@ export default function AdOnly({ adTagUrl = SAMPLE_TAG }) {
       // Wire up IMA with manual ad-break control
       player.ima({
         adTagUrl,
-        autoPlayAdBreaks: false, // we'll start the break ourselves
+        autoPlayAdBreaks: false, // we will start the break ourselves
         debug: true,             // more logs from the plugin
         contribAdsSettings: { playerMode: "outstream", timeout: 8000 },
       });
@@ -93,79 +126,72 @@ export default function AdOnly({ adTagUrl = SAMPLE_TAG }) {
       player.on("adsready", () => {
         console.log("[contrib-ads] 'adsready' fired (OutstreamPending)");
         setFlags((f) => ({ ...f, adsReady: true }));
+        // Attempt autoplay as soon as ads are ready
+        tryAutoStartAd(player);
       });
 
       // 3) Contrib-ads ad lifecycle (sanity logs)
-      player.on("adstart", () => console.log("[contrib-ads] 'adstart'"));
+      player.on("adstart", () => {
+        console.log("[contrib-ads] 'adstart'");
+        setNeedsGesture(false); // hide overlay if it was shown
+      });
       player.on("adend", () => console.log("[contrib-ads] 'adend'"));
-      player.on("adserror", (e) => console.warn("[contrib-ads] 'adserror'", e));
+      player.on("adserror", (e) => {
+        console.warn("[contrib-ads] 'adserror'", e);
+        // On error, also remove overlay if shown
+        setNeedsGesture(false);
+      });
 
-      // Prefetch ONCE on mount. Do NOT request again on click.
+      // Prefetch ONCE on mount. Do NOT request again later.
       console.log("[IMA] Calling requestAds() now (prefetch once)");
       player.ima.requestAds();
       setFlags((f) => ({ ...f, requestAdsCalled: true }));
     })().catch((e) => console.error("IMA init failed", e));
 
     return () => {
-      try {
-        playerRef.current?.dispose();
-      } catch {}
+      try { playerRef.current?.dispose(); } catch {}
     };
-  }, [adTagUrl]);
-
-  // Button handler:
-  // - Must call initializeAdDisplayContainer() inside the user gesture.
-  // - For outstream VAST, don't gate on player.play() (there is no content).
-  // - Start immediately if adsready already fired; otherwise wait for it once.
-  const startAd = () => {
-    const p = playerRef.current;
-    if (!p) return;
-
-    // 1) Required by browsers: init the ad display container in the gesture
-    try {
-      p.ima.initializeAdDisplayContainer();
-    } catch (e) {
-      console.error("Failed to initialize ad display container:", e);
-    }
-
-    // 2) Optional: "unlock" the media element in stricter environments
-    //    (There’s no content; we ignore the promise rejection)
-    try {
-      p.muted(true);
-      p.play()?.catch(() => {});
-    } catch {}
-
-    // 3) Start the ad break (now or when adsready arrives)
-    const startBreak = () => {
-      console.log("[IMA] Starting ad break now");
-      p.ima.playAdBreak();
-    };
-
-    if (flags.adsReady) {
-      startBreak();
-    } else {
-      console.log("[IMA] Waiting for 'adsready' before starting ad break");
-      p.one("adsready", startBreak);
-    }
-  };
+  }, [adTagUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div style={{ display: "grid", gap: 8, placeItems: "center" }}>
-      <video
-        ref={el}
-        className="video-js vjs-default-skin"
-        style={{ width: 640, height: 360, background: "#000" }}
-        playsInline
-      />
-      <button onClick={startAd} disabled={!flags.adsReady}>
-        {flags.adsReady ? "Play Ad" : "Loading Ad…"}
-      </button>
+      {/* Make this wrapper relative so we can position the overlay */}
+      <div style={{ position: "relative", width: 640, height: 360 }}>
+        <video
+          ref={el}
+          className="video-js vjs-default-skin"
+          style={{ width: "100%", height: "100%", background: "#000" }}
+          playsInline
+        />
+
+        {/* Fallback overlay appears only if autoplay is blocked */}
+        {needsGesture && (
+          <button
+            onClick={manualStart}
+            style={{
+              position: "absolute",
+              inset: "auto 12px 12px auto",
+              padding: "8px 12px",
+              borderRadius: 8,
+              border: "1px solid #444",
+              background: "#111",
+              color: "#fff",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+              cursor: "pointer",
+              zIndex: 5,
+            }}
+          >
+            Play Ad
+          </button>
+        )}
+      </div>
 
       {/* tiny debug badge — remove if you like */}
       <div style={{ fontFamily: "monospace", fontSize: 12, opacity: 0.8 }}>
         requestAds: {String(flags.requestAdsCalled)} ·{" "}
         adsManagerLoaded: {String(flags.adsManagerLoaded)} ·{" "}
-        adsReady: {String(flags.adsReady)}
+        adsReady: {String(flags.adsReady)} ·{" "}
+        needsGesture: {String(needsGesture)}
       </div>
     </div>
   );
