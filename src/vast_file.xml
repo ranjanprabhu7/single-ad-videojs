@@ -1,0 +1,27 @@
+<<?xml version="1.0" encoding="UTF-8"?>
+<VAST xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0" xsi:noNamespaceSchemaLocation="vast.xsd">
+    <Ad id="58">
+        <InLine>
+            <AdSystem version="3.0">AD_SYSTEM</AdSystem>
+            <AdTitle>Test title</AdTitle>
+            <Error>
+                <![CDATA[https://aj2687.bid/zCaqIr04SLllCOw672T3iOR8V657FuyL71hktykziX-aYEygS7MzfElE7UMxSUE9oAq6tlVAqTqXP31By7jSh0RmQEldZt0Yo2j87YU5_uCRD_YDMFt5U4DvZoBzwCfYNxzZs-_EW7YMrl_NdIyW1mYnRsXZNAdJ64Wx8XxpO09UYIL_jrIXIdBLvLo3aELfBFL6kC3aWdtUS8MFNTvQGe7jNrc1QQE6eKEsjJsID4ww_F259t5GcyArX-XSMGWMD9XLDA8fia6G7RzJBMpiQ4Zx7MWNadtH7lXyrxwt-w-pXcDVNBjgHjprfahbWqfPVDNdVDH5xQNWXcNmczPh3eCs9M5PK-K-LATCn73G5yfnZxdw7xtslxsb0SCusPd6MdrTznu-HCnkNcDMjgA?DC=HZFI]]>
+            </Error>
+            <Impression>
+                <![CDATA[https://aj2687.bid/zIYAt5v4Tm_WlTa8duGDSQdXk_z4KVQgFbgcl1IgP2ud-FlWA96FQZXLUSPm-Lf52EjQa4hdt-mMVw4T1opcT_96C0FfSt4E_VxnjwQLOWoBz1UEyRbpiWlKwWQWW28cAyXFRup0EcreMN2bSN5Idi90IErpWOR_13VmUFoVxKqohYMDaIWMjhR1bPPkKfWpMBFKa84BdieDN98cSstBzcVZRcPCyVJlJe9nqWdKl3f74dPi-EGeuxjj7awN8E7BskcO2M0a8k3EPKaI8aO686beYQHQBpfLvLt494Y97IjMPStpNCmavZxRQFktWO3m5?DC=HZFI]]>
+            </Impression>
+            <Creatives>
+                <Creative>
+                    <Linear skipoffset="00:00:10">
+                        <Duration>00:00:05</Duration>
+                        <MediaFiles>
+                            <MediaFile bitrate="7575" delivery="progressive" height="2160" maintainAspectRatio="true" scalable="true" type="video/mp4" width="3840">
+                                <![CDATA[https://cdn77.aj2687.bid/files2687/45/40/58/acqua-earth.mp4]]>
+                            </MediaFile>
+                        </MediaFiles>
+                    </Linear>
+                </Creative>
+            </Creatives>
+        </InLine>
+    </Ad>
+</VAST>>

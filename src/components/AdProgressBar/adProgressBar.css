@@ -1,0 +1,67 @@
+.progress-bar-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  color: white;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.ad-label,
+.ad-info,
+.ad-time {
+  display: none;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  backdrop-filter: blur(2px);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background-color: #4de623;
+  width: 0%;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Tablet and up */
+@media screen and (min-width: 900px) {
+  .progress-bar-container {
+    bottom: 8px;
+    left: 24px;
+    max-width: 794px;
+  }
+
+  .ad-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 5px;
+  }
+
+  .ad-info {
+    display: block;
+  }
+
+  .ad-time {
+    display: block;
+  }
+
+  .time-pay-variant2 .progress-bar-container {
+    max-width: 584px;
+  }
+}
+
+/* Variant 3 */
+.time-pay-variant3 .ad-label {
+  margin-bottom: 20px;
+}

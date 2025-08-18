@@ -1,6 +1,6 @@
-import AdOnly from "./AdOnly";
+import AdPlayer from "./AdPlayer";
 
 export function App() {
-  return <AdOnly />;
+  return <AdPlayer />;
 }
 export default App;

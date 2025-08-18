@@ -1,0 +1,25 @@
+.branding {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  opacity: 0.8;
+  justify-content: center;
+}
+
+.branding a {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* variant 2 */
+.time-pay-variant2 .branding {
+  position: absolute;
+  left: 8px;
+  top: 16px;
+}
+
+.time-pay-variant2 .branding button {
+  background: transparent;
+}

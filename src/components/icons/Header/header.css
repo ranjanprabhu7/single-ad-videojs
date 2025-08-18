@@ -1,0 +1,120 @@
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 16px 16px 0 16px;
+  background-color: black;
+  border-radius: 16px 16px 0 0;
+}
+
+.zzazz-logo {
+  height: 35px;
+  width: 35px;
+  filter: invert(100%);
+  padding-right: 5px;
+  display: none; /* Hidden by default on mobile */
+}
+
+.arrow-button {
+  background: #131313;
+  border: 1px solid #bababa;
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px;
+  font-weight: bolder;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+}
+
+.price-section {
+  display: flex;
+}
+
+.price-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2px;
+}
+
+.price {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.currency {
+  font-size: 12px;
+  opacity: 0.6;
+  vertical-align: middle;
+  text-transform: uppercase;
+  color: #808080;
+}
+
+.percentage {
+  display: none; /* Hidden on mobile */
+}
+
+.price-info-header {
+  font-size: 10px;
+  color: #bababa;
+}
+
+.time-pay-variant2 .price-info {
+  display: none;
+}
+
+.time-pay-variant2 .timepay-ad-window .branding {
+  display: none;
+}
+
+/* Tablet and up */
+@media screen and (min-width: 940px) {
+  .widget-header {
+    padding: 16px;
+  }
+  .zzazz-logo {
+    display: block;
+  }
+
+  .percentage {
+    display: inline;
+  }
+
+  .currency {
+    vertical-align: super;
+  }
+
+  .price-info-header {
+    display: none;
+  }
+
+  .arrow-button {
+    border-radius: 5px;
+  }
+
+  /* variant 1 */
+  .time-pay-variant1 .widget-header {
+    padding: 16px 16px 4px 16px;
+  }
+
+  /* variant 2 */
+  .time-pay-variant2 .widget-header {
+    display: none;
+  }
+
+  .time-pay-variant2 .price-info {
+    display: flex;
+  }
+
+  .time-pay-variant2 .timepay-ad-window .branding {
+    display: flex;
+  }
+
+  /* variant 3 */
+  .time-pay-variant3 .widget-header {
+    padding: 16px 16px 4px 16px;
+  }
+}
